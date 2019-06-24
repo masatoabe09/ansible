@@ -1,0 +1,62 @@
+- name: Create a sandbox instance
+  hosts: test
+  gather_facts: False
+  vars:
+    httpOff: "sg-003ffde6972513793"
+    httpOn: "sg-0ab84156357937300"
+
+  tasks:
+    - name: Get my instance info.
+      shell:
+        curl -s http://169.254.169.254/latest/meta-data/instance-id
+      register: myinstance
+
+    - name: Get 'Domain' Tag Value
+      shell:
+        aws ec2 describe-instances --region us-east-1 --instance-ids {{ myinstance.stdout }} --output text --query 'Reservations[].Instances[].Tags[?Key==`Domain`].[Value]'
+      register: mydomain
+
+    - name: Port80 Open
+      shell:
+        aws ec2 modify-instance-attribute --instance-id "{{ myinstance.stdout }}"  --groups "{{ httpOn }}"
+
+    - name: Restart Apache
+      shell:
+        cd /etc/httpd/conf.d
+        mv proxy-ajp.conf proxy-ajp.bkup
+        mv proxy-ajp.setup proxy-ajp.conf
+        mv proxy-ajp.bkup proxy-ajp.setup
+        service httpd restart
+
+    - name: Certbot Exec
+      shell:
+        certbot certonly --force-renewal --webroot -w /opt/tomcat/webapps/ -d {{ mydomain.stdout }}
+
+    - name: update ssl.conf(1)
+      replace:
+        path: /etc/httpd/conf.d/ssl.conf
+        regexp: '^SSLCertificateFile.*'
+        replace: 'SSLCertificateFile /etc/letsencrypt/live/{{ mydomain.stdout }}/cert.pem'
+
+    - name: update ssl.conf(2)
+      replace:
+        path: /etc/httpd/conf.d/ssl.conf
+        regexp: '^SSLCertificateKeyFile.*'
+        replace: 'SSLCertificateKeyFile /etc/letsencrypt/live/{{ mydomain.stdout }}/privkey.pem'
+    - name: update ssl.conf(3)
+      replace:
+        path: /etc/httpd/conf.d/ssl.conf
+        regexp: '^SSLCertificateChainFile.*'
+        replace: 'SSLCertificateChainFile /etc/letsencrypt/live/{{ mydomain.stdout }}/chain.pem'
+
+    - name: Restart Apache
+      shell:
+        cd /etc/httpd/conf.d
+        mv proxy-ajp.conf proxy-ajp.bkup
+        mv proxy-ajp.setup proxy-ajp.conf
+        mv proxy-ajp.bkup proxy-ajp.setup
+        service httpd restart
+
+    - name: Port80 Close
+      shell:
+        aws ec2 modify-instance-attribute --instance-id "{{ myinstance.stdout }}"  --groups "{{ httpOff }}"
