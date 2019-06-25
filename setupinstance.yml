@@ -4,14 +4,15 @@
   connection: local
 
   vars:
-    keypair: "R.N_keypair"
+    region: "us-east-1"
     instance_type: "t2.micro"
+    image: "ami-03d822ebef35ac5e0"
+    security_group: "sg-003ffde6972513793"
+    keypair: "R.N_keypair"
     instance_tags: Name='TestAnsible2',Domain='ensys.jp'
     instance_name: TestAnsibles
+
     count_tags: Name='foo count'
-    security_group: "sg-003ffde6972513793"
-    image: "ami-03d822ebef35ac5e0"
-    region: "us-east-1"
     instance_count: 1
 
   tasks:
@@ -35,7 +36,7 @@
       with_items: '{{ ec2.instances }}'
 
     - name: Write IP Addresses to Log File
-      local_action: shell cd /etc/ansible; echo {{ item.public_ip}} >> createdEC2
+      local_action: shell cd /etc/git/ansible; echo {{ item.public_ip}} >> createdEC2
       with_items: '{{ ec2.instances }}'
 
 - name: Setup Utsusemi instance
@@ -44,16 +45,42 @@
   become: yes
   become_user: root
   vars:
-    region: 'us-east-1'
-    userpoolID: 'us-east-1_HeTmsbb6v'
-    apliclientID: '11gts94au5vs64mluogodsn0s9'
-    idpoolID: 'us-east-1:55f4013e-5fce-4c0a-a9cc-e588a2b6b30c'
+    cognito_region: 'us-east-1'
+    cognito_userpoolID: 'us-east-1_HeTmsbb6v'
+    cognito_apliclientID: '11gts94au5vs64mluogodsn0s9'
+    cognito_idpoolID: 'us-east-1:55f4013e-5fce-4c0a-a9cc-e588a2b6b30c'
+
+    postgres_userID: 'utsusemiuser'
+    postgres_password: 'ad307483'
+
+    mail_from: 'no-reply@utsusemi.cloud'
+    mail_to: 'unicia127@gmail.com'
+    mail_smtp_server: 'email-smtp.us-east-1.amazonaws.com'
+    mail_smtp_userID: 'AKIAI7LZXPO2CI2MAA2Q'
+    mail_smtp_password: 'AsEAShL//yyFbCdmrwvtcRayMhPvNsnLVwtGZdSYnH5j'
 
   tasks:
+
+    - name: (1)Create /etc/utsusemi/webapps/.cognito
     - template:
-        src: /etc/ansible/cognito.j2
+        src: /etc/git/ansible/cognito.j2
         dest: /etc/utsusemi/webapps/.cognito
         owner: tomcat
         group: tomcat
         mode: 0700
 
+    - name:  (2)Create /etc/utsusemi/webapps/.postgres
+    - template:
+        src: /etc/git/ansible/postgres.j2
+        dest: /etc/utsusemi/webapps/.postgres
+        owner: tomcat
+        group: tomcat
+        mode: 0700
+
+    - name:  (3)Create /etc/utsusemi/webapps/.signup
+    - template:
+        src: /etc/git/ansible/signup.j2
+        dest: /etc/utsusemi/webapps/.signup
+        owner: tomcat
+        group: tomcat
+        mode: 0700

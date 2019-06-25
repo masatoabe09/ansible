@@ -1,5 +1,5 @@
 - name: Create a sandbox instance
-  hosts: test
+  hosts: target
   gather_facts: False
   vars:
     httpOff: "sg-003ffde6972513793"
