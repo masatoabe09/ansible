@@ -6,7 +6,7 @@
   vars:
     region: "us-east-1"
     instance_type: "t2.micro"
-    image: "ami-018966487647478f0"
+    image: "ami-07626b842f1104fe6"
     security_group: "sg-0ab84156357937300"
     keypair: "R.N_keypair"
     instance_name: "TestAnsible"

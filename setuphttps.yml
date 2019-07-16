@@ -5,7 +5,12 @@
     httpOff: "sg-003ffde6972513793"
     httpOn: "sg-0ab84156357937300"
 
+
   tasks:
+    - name: install utsusemi
+      shell:
+        su -s /bin/bash - tomcat -c "/etc/utsusemi/webapps/updater.sh"
+
     - name: Get my instance info.
       shell:
         curl -s http://169.254.169.254/latest/meta-data/instance-id
@@ -60,3 +65,4 @@
     - name: Port80 Close
       shell:
         aws ec2 modify-instance-attribute --instance-id "{{ myinstance.stdout }}"  --groups "{{ httpOff }}"
+
