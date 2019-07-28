@@ -54,6 +54,8 @@
     mail_smtp_userID: 'AKIAI7LZXPO2CI2MAA2Q'
     mail_smtp_password: 'AsEAShL//yyFbCdmrwvtcRayMhPvNsnLVwtGZdSYnH5j'
 
+    github_branch: 'develop'
+
   tasks:
     - name: (1)Create /etc/utsusemi/webapps/.cognito
       template:
@@ -78,3 +80,15 @@
         owner: tomcat
         group: tomcat
         mode: 0700
+
+    - name:  (4)Create /etc/utsusemi/webapps/.branch
+      template:
+        src: /etc/git/ansible/branch.j2
+        dest: /etc/utsusemi/webapps/.branch
+        owner: tomcat
+        group: tomcat
+        mode: 0700
+
+    - name:  (5)Execute utsusemi updater.
+      shell:
+        su -s /bin/bash - tomcat -c "/etc/utsusemi/webapps/updater.sh"

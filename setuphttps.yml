@@ -66,3 +66,13 @@
       shell:
         aws ec2 modify-instance-attribute --instance-id "{{ myinstance.stdout }}"  --groups "{{ httpOff }}"
 
+    - name: Create a new webhook that triggers on push (password auth)
+      local_action: github_webhook
+        repository="masatoabe09/utsusemi"
+        url="https://{{ mydomain.stdout }}/updater/index.jsp"
+        events="push"
+        user="masatoabe09@gmail.com"
+        password="nji98UHB"
+        content_type="form"
+        insecure_ssl="yes"
+
