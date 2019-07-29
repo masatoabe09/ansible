@@ -6,7 +6,7 @@
   vars:
     region: "us-east-1"
     instance_type: "t2.micro"
-    image: "ami-0369dffc8f5c2a35f"
+    image: "ami-0e5742df35c5ba057"
     security_group: "sg-0ab84156357937300"
     keypair: "R.N_keypair"
     instance_name: "TestAnsible"
@@ -54,7 +54,7 @@
     mail_smtp_userID: 'AKIAI7LZXPO2CI2MAA2Q'
     mail_smtp_password: 'AsEAShL//yyFbCdmrwvtcRayMhPvNsnLVwtGZdSYnH5j'
 
-    github_branch: 'develop'
+    github_branch: 'develop2'
 
   tasks:
     - name: (1)Create /etc/utsusemi/webapps/.cognito
